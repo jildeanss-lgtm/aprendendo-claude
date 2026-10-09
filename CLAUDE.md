@@ -64,6 +64,6 @@ Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.*
 - Os **cálculos de dinheiro** (subtotal, taxa, total) são feitos pelo **fluxo do n8n**, não pela IA, para evitar erro de conta.
 
 ## Situação atual
-- **Já tem:** a planilha criada, o prompt do atendente escrito, a conta no n8n Cloud, a conta na Anthropic (platform.claude.com) com US$ 5 de crédito e a chave de API `n8n-drogajil` criada (guardada só com o Jildean, nunca no repositório).
+- **Já tem:** a planilha criada, o prompt do atendente escrito, a conta no n8n Cloud, a conta na Anthropic (platform.claude.com) com US$ 5 de crédito e a chave de API `n8n-drogajil` criada, sem prazo de validade (guardada só com o Jildean, nunca no repositório).
 - **Ainda não tem:** a chave cadastrada no n8n, conexão com o Google Planilhas, conexão com o WhatsApp.
 - **Próxima etapa:** 2B, cadastrar a chave da Anthropic como credencial no n8n.

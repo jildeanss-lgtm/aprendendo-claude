@@ -26,6 +26,7 @@ Um atendente virtual com IA (Claude, da Anthropic) responde os clientes no Whats
 - **Entrega** só no **Recanto das Emas** e no **Riacho Fundo**. Taxa única de **R$ 10,00**. Prazo de **30 a 40 minutos**.
 - **Pagamento:** Pix, cartão na entrega ou dinheiro. A IA **nunca** confirma sozinha que um Pix caiu.
 - **Medicamento que exige receita:** a IA pede foto da receita e transfere para o farmacêutico. Nada é registrado ou entregue antes da validação. **Controlados sempre** passam pelo farmacêutico.
+  - **Decisão do Jildean:** o pedido **só é gravado na aba Pedidos depois que o farmacêutico aprovar** a receita. Antes disso, não existe linha em Pedidos.
 - A IA **não** dá orientação de dose, diagnóstico ou troca de remédio. Em emergência, orienta ligar **192 (SAMU)**.
 - **Transferências:** receitas e dúvidas de saúde vão para o **farmacêutico**. O resto (reclamação, troca, erro, pedido do cliente) vai para o **atendente**.
 

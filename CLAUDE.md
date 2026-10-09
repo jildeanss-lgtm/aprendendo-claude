@@ -68,7 +68,11 @@ Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.*
 - **Memória por conversa**, com chave = telefone do cliente.
 - Sete ferramentas, com **exatamente** estes nomes:
   `consultar_produtos`, `consultar_cliente`, `salvar_cliente`, `registrar_pedido`, `acionar_entrega`, `transferir_farmaceutico`, `transferir_atendente`.
-- O **prompt de sistema** do atendente já está escrito pelo Jildean. Pedir para ele colar quando for a hora.
+- O **prompt de sistema** aprovado está em `prompts/atendente.md` (versão revisada e aprovada pelo Jildean em 09/10/2026). Vai no campo System Message do AI Agent, em modo Expression (por causa da linha de data e hora).
+- **Decisão:** `registrar_pedido` tem dois modos. Com `confirmado` = false, o n8n calcula o resumo (subtotal, taxa, total) e devolve sem gravar; com `confirmado` = true, grava o pedido. A IA nunca faz contas.
+- **Decisão:** a IA sempre chama `acionar_entrega` após registrar; o fluxo do n8n decide se a entrega sai agora ou a partir das 08:00.
+- **Decisão:** pedido com receita ou controlado: a IA pede a foto, chama `transferir_farmaceutico` e não chama `registrar_pedido` nem `acionar_entrega`. A IA só sugere produto alternativo (mesmo princípio ativo) para itens sem receita.
+- O telefone do cliente vem do WhatsApp e é passado pelo fluxo; a IA não pergunta o telefone.
 - Os **cálculos de dinheiro** (subtotal, taxa, total) são feitos pelo **fluxo do n8n**, não pela IA, para evitar erro de conta.
 
 ## Situação atual
@@ -77,4 +81,4 @@ Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.*
 - **Ainda não tem:** conexão com o WhatsApp.
 - **Fluxos no n8n:** `Teste - ler produtos` (Trigger manually → Google Sheets "Get row(s) in sheet", aba Produtos). Fluxo completo executado com sucesso em 09/10/2026: os dois nós rodam e trazem 163 itens. O n8n acrescenta a coluna `row_number` (número da linha) nos dados lidos, e o preço vem como número (ex.: 8.9).
 - **Lição aprendida no n8n:** quando aparecer "Problem saving workflow / Autosave failed", a ligação entre nós pode não ser salva e o fluxo roda só o primeiro nó. Solução que funcionou: apagar a linha, ligar de novo, Ctrl+S, F5 e conferir no painel Logs se todos os nós aparecem.
-- **Próxima etapa:** 4, montar o atendente de IA (nó AI Agent + Claude + memória por telefone) e testar pela janela de chat do n8n. Pedir ao Jildean o prompt de sistema.
+- **Próxima etapa:** 4, montar o atendente de IA (fluxo `Atendente Drogajil`: Chat Trigger → AI Agent + Anthropic Chat Model + Simple Memory + prompt) e testar pela janela de chat do n8n, ainda sem ferramentas.

@@ -73,6 +73,6 @@ Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.*
 
 ## Situação atual
 - **Já tem:** a planilha criada, o prompt do atendente escrito, a conta no n8n Cloud, a conta na Anthropic (platform.claude.com) com US$ 5 de crédito e a chave de API `n8n-drogajil` criada, sem prazo de validade (guardada só com o Jildean, nunca no repositório).
-- **Credenciais no n8n:** `Anthropic Drogajil` (testada com sucesso em 09/10/2026). Existe também uma credencial `Google Sheets account` com aviso "Needs first setup", criada pelo Assistant do n8n.
-- **Ainda não tem:** conexão com o Google Planilhas funcionando, conexão com o WhatsApp.
-- **Próxima etapa:** 3, conectar o Google Planilhas ao n8n e testar a leitura da aba Produtos.
+- **Credenciais no n8n:** `Anthropic Drogajil` (testada com sucesso em 09/10/2026) e a credencial do Google Planilhas (tipo "Google Sheets OAuth2 API", conta jildean.ss@gmail.com, "Account connected" em 09/10/2026; nome sugerido `Google Planilhas Drogajil`, antes chamada "Google Sheets account 2"). Existe também uma credencial antiga `Google Sheets account` com aviso "Needs first setup", criada pelo Assistant do n8n e ligada a 1 fluxo: apagar depois, com cuidado.
+- **Ainda não tem:** conexão com o WhatsApp.
+- **Próxima etapa:** 3B, fluxo de teste que lê a aba Produtos no n8n.

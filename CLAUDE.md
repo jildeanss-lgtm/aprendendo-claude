@@ -73,6 +73,7 @@ Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.*
 
 ## Situação atual
 - **Já tem:** a planilha criada, o prompt do atendente escrito, a conta no n8n Cloud, a conta na Anthropic (platform.claude.com) com US$ 5 de crédito e a chave de API `n8n-drogajil` criada, sem prazo de validade (guardada só com o Jildean, nunca no repositório).
-- **Credenciais no n8n:** `Anthropic Drogajil` (testada com sucesso em 09/10/2026) e a credencial do Google Planilhas (tipo "Google Sheets OAuth2 API", conta jildean.ss@gmail.com, "Account connected" em 09/10/2026; nome sugerido `Google Planilhas Drogajil`, antes chamada "Google Sheets account 2"). Existe também uma credencial antiga `Google Sheets account` com aviso "Needs first setup", criada pelo Assistant do n8n e ligada a 1 fluxo: apagar depois, com cuidado.
+- **Credenciais no n8n:** `Anthropic Drogajil` (testada com sucesso em 09/10/2026) e a credencial do Google Planilhas (tipo "Google Sheets OAuth2 API", conta jildean.ss@gmail.com, "Account connected" em 09/10/2026; nome `Google Planilhas Drogajil`). Existe também uma credencial antiga `Google Sheets account` com aviso "Needs first setup", criada pelo Assistant do n8n e ligada a 1 fluxo: apagar depois, com cuidado.
 - **Ainda não tem:** conexão com o WhatsApp.
-- **Próxima etapa:** 3B, fluxo de teste que lê a aba Produtos no n8n.
+- **Fluxos no n8n:** `Teste - ler produtos` (Trigger manually → Google Sheets "Get row(s) in sheet", aba Produtos). Leu os 163 produtos com sucesso em 09/10/2026. O n8n acrescenta a coluna `row_number` (número da linha) nos dados lidos.
+- **Próxima etapa:** 4, montar o atendente de IA (nó AI Agent + Claude + memória por telefone) e testar pela janela de chat do n8n. Pedir ao Jildean o prompt de sistema.

@@ -73,6 +73,8 @@ Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.*
 - **Decisão:** a IA sempre chama `acionar_entrega` após registrar; o fluxo do n8n decide se a entrega sai agora ou a partir das 08:00.
 - **Decisão:** pedido com receita ou controlado: a IA pede a foto, chama `transferir_farmaceutico` e não chama `registrar_pedido` nem `acionar_entrega`. A IA só sugere produto alternativo (mesmo princípio ativo) para itens sem receita.
 - O telefone do cliente vem do WhatsApp e é passado pelo fluxo; a IA não pergunta o telefone.
+- **Modelo:** durante a montagem (etapas 4 a 10) usar **Claude Haiku 5.5** para economizar créditos. Na etapa 11 (bateria de testes das regras) testar com **Claude Sonnet 5.5** e com Haiku 5.5, e o Jildean escolhe qual vai para produção. Preços (Anthropic, por milhão de tokens): Sonnet 5.5 US$ 2 entrada / US$ 10 saída; Haiku 5.5 US$ 0,10 / US$ 0,50.
+- O Jildean usa o n8n com a **tradução automática do Chrome** ligada. Dar os nomes em português e o original em inglês entre parênteses. A tradução troca nomes (ex.: "Sonnet" vira "Soneto", "categoria" vira "tímpano"); o que ele digita não é traduzido.
 - Os **cálculos de dinheiro** (subtotal, taxa, total) são feitos pelo **fluxo do n8n**, não pela IA, para evitar erro de conta.
 
 ## Situação atual

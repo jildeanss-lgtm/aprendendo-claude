@@ -15,7 +15,7 @@
 Um atendente virtual com IA (Claude, da Anthropic) responde os clientes no WhatsApp, consulta produtos, preço e estoque numa planilha do Google, registra pedidos e aciona a entrega por motoboy. Casos sensíveis vão para uma pessoa.
 
 ### Ferramentas
-- **n8n Cloud**: o orquestrador que liga tudo (conta ainda não criada).
+- **n8n Cloud**: o orquestrador que liga tudo (conta já criada).
 - **Google Planilhas**: a base de dados (já criada).
 - **API da Anthropic**: o modelo de IA do atendente.
 - **WhatsApp Business Cloud API (Meta)**: o canal de atendimento. Fica por último.
@@ -64,5 +64,5 @@ Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.*
 - Os **cálculos de dinheiro** (subtotal, taxa, total) são feitos pelo **fluxo do n8n**, não pela IA, para evitar erro de conta.
 
 ## Situação atual
-- **Já tem:** a planilha criada, o prompt do atendente escrito e a conta no n8n Cloud.
+- **Já tem:** a planilha criada, o prompt do atendente escrito, a conta no n8n Cloud e a conta na Anthropic (platform.claude.com) com US$ 5 de crédito.
 - **Ainda não tem:** chave da API da Anthropic, conexão com o WhatsApp.

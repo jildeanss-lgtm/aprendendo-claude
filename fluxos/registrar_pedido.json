@@ -1,0 +1,532 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "itens"
+            },
+            {
+              "name": "forma_pagamento"
+            },
+            {
+              "name": "troco_para"
+            },
+            {
+              "name": "confirmado",
+              "type": "boolean"
+            },
+            {
+              "name": "observacoes"
+            }
+          ]
+        }
+      },
+      "id": "6b75a023-5e46-56ab-b36f-085fe7cd1d74",
+      "name": "Entrada",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Configuração",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "5eed28ba-aedd-5174-b9ff-24bfc3a54b00",
+      "name": "Ler configuracao",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        300
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Produtos",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "74984a40-8188-5ddf-b521-963061a97b7d",
+      "name": "Ler produtos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        440,
+        300
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Clientes",
+          "mode": "name"
+        },
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "telefone",
+              "lookupValue": "={{ $('Entrada').first().json.telefone }}"
+            }
+          ]
+        }
+      },
+      "id": "b24996cc-4e73-5e47-9479-73d440245ca6",
+      "name": "Ler cliente",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        660,
+        300
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Confere o pedido e faz as contas. Os preços vêm SEMPRE da planilha, nunca da IA.\nconst entrada = $('Entrada').first().json;\n\nfunction paraNumero(v) {\n  if (typeof v === 'number') return v;\n  if (v === null || v === undefined) return NaN;\n  let s = String(v).replace(/R\\$/g, '').replace(/\\s/g, '');\n  if (s === '') return NaN;\n  if (s.includes(',')) s = s.replace(/\\./g, '').replace(',', '.');\n  return Number(s);\n}\nfunction paraCentavos(v) { return Math.round(paraNumero(v) * 100); }\nfunction reais(c) {\n  const neg = c < 0; c = Math.abs(c);\n  const inteiro = Math.floor(c / 100).toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, '.');\n  return (neg ? '-' : '') + 'R$ ' + inteiro + ',' + String(c % 100).padStart(2, '0');\n}\nfunction normalizar(s) {\n  return String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();\n}\nfunction simNao(v) { return normalizar(v) === 'sim'; }\n\n// Configuração (taxa e bairros vêm da aba Configuração)\nconst config = {};\nfor (const item of $('Ler configuracao').all()) {\n  config[item.json.parametro] = item.json.valor;\n}\nconst taxaCentavos = paraCentavos(config.taxa_entrega);\nconst bairros = String(config.bairros_atendidos ?? '').split(',').map(b => b.trim()).filter(Boolean);\n\nconst erros = [];\nif (!Number.isFinite(taxaCentavos)) erros.push('A taxa de entrega não está configurada na aba Configuração. Transfira para um atendente.');\n\n// Produtos\nconst produtos = $('Ler produtos').all().map(i => i.json);\nconst porId = {};\nconst porNome = {};\nfor (const p of produtos) {\n  porId[normalizar(p.id_produto)] = p;\n  porNome[normalizar(p.nome)] = p;\n}\n\n// Itens enviados pela IA (aceita texto JSON ou lista)\nlet itens = entrada.itens;\nif (typeof itens === 'string') {\n  try { itens = JSON.parse(itens); } catch (e) { itens = null; }\n}\nif (itens && !Array.isArray(itens) && typeof itens === 'object') itens = [itens];\nif (!Array.isArray(itens) || itens.length === 0) {\n  erros.push('Nenhum item válido foi enviado. Envie os itens como [{\"id_produto\": \"P0001\", \"quantidade\": 2}].');\n  itens = [];\n}\n\nconst linhas = [];\nconst somaPorProduto = {};\nfor (const it of itens) {\n  const chaveId = normalizar(it.id_produto ?? it.id ?? it.codigo);\n  const chaveNome = normalizar(it.nome ?? it.produto);\n  const p = porId[chaveId] || porNome[chaveNome] || porNome[chaveId];\n  const quantidade = Number(it.quantidade ?? it.qtd ?? 1);\n  const rotulo = it.id_produto || it.nome || it.produto || '(sem nome)';\n  if (!p) { erros.push(`Produto \"${rotulo}\" não encontrado no catálogo. Use consultar_produtos para pegar o id_produto certo.`); continue; }\n  if (!Number.isInteger(quantidade) || quantidade < 1) { erros.push(`Quantidade inválida para ${p.nome}.`); continue; }\n  if (!simNao(p.ativo)) { erros.push(`${p.nome} não está disponível para venda.`); continue; }\n  if (simNao(p.exige_receita) || simNao(p.controlado)) {\n    erros.push(`${p.nome} exige receita${simNao(p.controlado) ? ' e é controlado' : ''}. Este item não pode ser registrado por aqui: peça a foto da receita e use transferir_farmaceutico.`);\n    continue;\n  }\n  const precoCentavos = paraCentavos(p.preco);\n  if (!Number.isFinite(precoCentavos) || precoCentavos <= 0) { erros.push(`${p.nome} está sem preço no catálogo. Transfira para um atendente.`); continue; }\n  somaPorProduto[p.id_produto] = (somaPorProduto[p.id_produto] || 0) + quantidade;\n  const estoque = paraNumero(p.estoque_atual);\n  if (!Number.isFinite(estoque) || somaPorProduto[p.id_produto] > estoque) {\n    erros.push(`Estoque insuficiente de ${p.nome}: o cliente pediu ${somaPorProduto[p.id_produto]} e temos ${Number.isFinite(estoque) ? estoque : 0}.`);\n    continue;\n  }\n  linhas.push({\n    id_produto: p.id_produto,\n    produto: p.nome,\n    apresentacao: p.apresentacao,\n    quantidade,\n    preco_centavos: precoCentavos,\n    subtotal_centavos: precoCentavos * quantidade,\n  });\n}\n\n// Cliente (pelo telefone que veio do sistema, nunca da conversa)\nconst cliente = $('Ler cliente').all().map(i => i.json).find(c => c && c.telefone !== undefined && String(c.telefone).trim() !== '');\nif (!cliente) {\n  erros.push('O cliente ainda não tem cadastro. Peça nome, endereço, número, bairro e ponto de referência e use salvar_cliente antes.');\n} else if (!bairros.includes(String(cliente.bairro).trim())) {\n  erros.push(`O bairro cadastrado (${cliente.bairro}) está fora da área de entrega (${bairros.join(' e ')}).`);\n}\n\n// Pagamento\nconst formas = { pix: 'Pix', cartao: 'Cartão na entrega', 'cartao na entrega': 'Cartão na entrega', credito: 'Cartão na entrega', debito: 'Cartão na entrega', dinheiro: 'Dinheiro' };\nlet forma = formas[normalizar(entrada.forma_pagamento)];\nif (!forma && normalizar(entrada.forma_pagamento).startsWith('cart')) forma = 'Cartão na entrega';\nif (!forma) erros.push('Forma de pagamento inválida. Use Pix, Cartão na entrega ou Dinheiro.');\n\nconst subtotal = linhas.reduce((s, l) => s + l.subtotal_centavos, 0);\nconst total = subtotal + (Number.isFinite(taxaCentavos) ? taxaCentavos : 0);\n\nlet trocoCentavos = null;\nif (forma === 'Dinheiro') {\n  const t = paraCentavos(entrada.troco_para);\n  if (Number.isFinite(t) && t > 0) {\n    if (t < total) erros.push(`O troco informado (${reais(t)}) é menor que o total do pedido (${reais(total)}). Pergunte de novo para quanto o cliente precisa de troco.`);\n    else trocoCentavos = t;\n  }\n}\n\nconst confirmado = entrada.confirmado === true || normalizar(entrada.confirmado) === 'true' || normalizar(entrada.confirmado) === 'sim';\n\nlet enderecoEntrega = '';\nif (cliente) {\n  enderecoEntrega = [cliente.endereco, cliente.numero, cliente.complemento].map(x => String(x ?? '').trim()).filter(Boolean).join(', ');\n}\n\nlet mensagem;\nif (erros.length > 0) {\n  mensagem = 'PEDIDO NÃO REGISTRADO. Problemas encontrados:\\n- ' + erros.join('\\n- ') + '\\nExplique ao cliente com gentileza e resolva antes de tentar de novo.';\n} else {\n  const textoItens = linhas.map(l => `${l.quantidade}x ${l.produto} (${l.apresentacao}): ${reais(l.subtotal_centavos)}`).join('\\n');\n  const partes = [\n    `Itens:\\n${textoItens}`,\n    `Subtotal: ${reais(subtotal)}`,\n    `Taxa de entrega: ${reais(taxaCentavos)}`,\n    `Total: ${reais(total)}`,\n    `Pagamento: ${forma}${trocoCentavos !== null ? ` (troco para ${reais(trocoCentavos)}: levar ${reais(trocoCentavos - total)} de troco)` : ''}`,\n    `Entrega em: ${enderecoEntrega}, ${cliente.bairro}${cliente.ponto_referencia ? ` (referência: ${cliente.ponto_referencia})` : ''}`,\n  ];\n  if (confirmado) {\n    mensagem = 'GRAVANDO PEDIDO.\\n' + partes.join('\\n');\n  } else {\n    mensagem = 'RESUMO CALCULADO PELO SISTEMA (o pedido ainda NÃO foi gravado).\\n' + partes.join('\\n') +\n      '\\nMostre este resumo ao cliente usando exatamente estes valores e peça confirmação. Só depois do \"sim\" chame registrar_pedido de novo, com os mesmos itens e confirmado = true.';\n  }\n}\n\nreturn [{\n  json: {\n    gravar: erros.length === 0 && confirmado,\n    mensagem,\n    erros,\n    itens: linhas,\n    subtotal_centavos: subtotal,\n    taxa_centavos: taxaCentavos,\n    total_centavos: total,\n    forma_pagamento: forma || '',\n    troco_centavos: trocoCentavos,\n    telefone: entrada.telefone,\n    nome_cliente: cliente ? cliente.nome : '',\n    endereco_entrega: enderecoEntrega,\n    bairro: cliente ? cliente.bairro : '',\n    observacoes: String(entrada.observacoes ?? '').trim(),\n  }\n}];\n"
+      },
+      "id": "130471b3-e4df-56e9-8eec-f97d1ccecccb",
+      "name": "Calcular pedido",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "5b1f3c1e-0d7a-4a59-9a43-6c1d0f8a2b10",
+              "leftValue": "={{ $json.gravar }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "33aeb5bf-c6d8-5c23-9fb1-c6d9d31e1116",
+      "name": "Gravar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { resposta: $('Calcular pedido').first().json.mensagem } }];"
+      },
+      "id": "c61604c0-8000-524e-aeb4-b16e6b39526b",
+      "name": "Resposta resumo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Pedidos",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "e151da52-23b2-5e44-b20b-ec77176edb5b",
+      "name": "Ler pedidos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1320,
+        160
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gera o número do pedido e monta as linhas para as abas Pedidos, Itens_Pedidos e Pagamentos.\nconst c = $('Calcular pedido').first().json;\n\nlet maior = 0;\nfor (const item of $('Ler pedidos').all()) {\n  const m = /^PED-(\\d+)$/.exec(String(item.json.id_pedido ?? '').trim());\n  if (m) maior = Math.max(maior, Number(m[1]));\n}\nconst numero = String(maior + 1).padStart(4, '0');\nconst idPedido = 'PED-' + numero;\nconst idPagamento = 'PAG-' + numero;\nconst dataHora = $now.setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm:ss');\n\n// Valores em texto com vírgula: a planilha (português) entende como número.\nfunction valor(c) { return (c / 100).toFixed(2).replace('.', ','); }\n\nreturn [{\n  json: {\n    id_pedido: idPedido,\n    id_pagamento: idPagamento,\n    pedido: {\n      id_pedido: idPedido,\n      data_hora: dataHora,\n      telefone_cliente: \"'\" + c.telefone,\n      nome_cliente: c.nome_cliente,\n      endereco_entrega: c.endereco_entrega,\n      bairro: c.bairro,\n      subtotal: valor(c.subtotal_centavos),\n      taxa_entrega: valor(c.taxa_centavos),\n      total: valor(c.total_centavos),\n      forma_pagamento: c.forma_pagamento,\n      troco_para: c.troco_centavos !== null ? valor(c.troco_centavos) : '',\n      status: 'Novo',\n      atendido_por: 'IA',\n      observacoes: c.observacoes,\n    },\n    itens: c.itens.map(l => ({\n      id_pedido: idPedido,\n      id_produto: l.id_produto,\n      produto: l.produto,\n      quantidade: l.quantidade,\n      preco_unitario: valor(l.preco_centavos),\n      subtotal_item: valor(l.subtotal_centavos),\n    })),\n    pagamento: {\n      id_pagamento: idPagamento,\n      id_pedido: idPedido,\n      data_hora: dataHora,\n      forma_pagamento: c.forma_pagamento,\n      valor: valor(c.total_centavos),\n      status: 'Pendente',\n      conferido_por: '',\n      comprovante: '',\n    },\n  }\n}];\n"
+      },
+      "id": "25480e02-55b4-511e-bd4d-70850a130947",
+      "name": "Preparar gravacao",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: $('Preparar gravacao').first().json.pedido }];"
+      },
+      "id": "eeb862aa-9449-540f-9b29-aaa847ffc01d",
+      "name": "Linha do pedido",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Pedidos",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "af1c2ad9-9041-5d6b-8840-0793866b0f57",
+      "name": "Gravar pedido",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1980,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return $('Preparar gravacao').first().json.itens.map(item => ({ json: item }));"
+      },
+      "id": "e2243dfe-b8fa-5e9e-a80d-389a8163a74f",
+      "name": "Linhas dos itens",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Itens_Pedidos",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "7a4dd732-0abd-5225-a5ec-fb71aa1bcb40",
+      "name": "Gravar itens",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2420,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: $('Preparar gravacao').first().json.pagamento }];"
+      },
+      "id": "479ec72e-6e18-5a76-8fb6-3c8a80743ccf",
+      "name": "Linha do pagamento",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Pagamentos",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "6379324a-d9fd-5d14-9b25-d5459e1f8291",
+      "name": "Gravar pagamento",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2860,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const p = $('Preparar gravacao').first().json;\nconst c = $('Calcular pedido').first().json;\nconst resumo = c.mensagem.replace('GRAVANDO PEDIDO.\\n', '');\nreturn [{ json: { resposta:\n  `PEDIDO REGISTRADO COM SUCESSO. Número do pedido: ${p.id_pedido}.\\n${resumo}\\n` +\n  `Informe ao cliente o número ${p.id_pedido} e o total. Depois use acionar_entrega com id_pedido = ${p.id_pedido}. ` +\n  `Não chame registrar_pedido de novo para este pedido.`\n} }];"
+      },
+      "id": "53064b79-2edd-570a-bf92-1ffd63a29556",
+      "name": "Resposta final",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        160
+      ]
+    }
+  ],
+  "connections": {
+    "Entrada": {
+      "main": [
+        [
+          {
+            "node": "Ler configuracao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler configuracao": {
+      "main": [
+        [
+          {
+            "node": "Ler produtos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler produtos": {
+      "main": [
+        [
+          {
+            "node": "Ler cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler cliente": {
+      "main": [
+        [
+          {
+            "node": "Calcular pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular pedido": {
+      "main": [
+        [
+          {
+            "node": "Gravar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler pedidos": {
+      "main": [
+        [
+          {
+            "node": "Preparar gravacao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar gravacao": {
+      "main": [
+        [
+          {
+            "node": "Linha do pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linha do pedido": {
+      "main": [
+        [
+          {
+            "node": "Gravar pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gravar pedido": {
+      "main": [
+        [
+          {
+            "node": "Linhas dos itens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linhas dos itens": {
+      "main": [
+        [
+          {
+            "node": "Gravar itens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gravar itens": {
+      "main": [
+        [
+          {
+            "node": "Linha do pagamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linha do pagamento": {
+      "main": [
+        [
+          {
+            "node": "Gravar pagamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gravar pagamento": {
+      "main": [
+        [
+          {
+            "node": "Resposta final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gravar?": {
+      "main": [
+        [
+          {
+            "node": "Ler pedidos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta resumo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

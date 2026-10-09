@@ -33,6 +33,8 @@ Um atendente virtual com IA (Claude, da Anthropic) responde os clientes no Whats
 ## A planilha (Google Planilhas, já pronta)
 Nome: **"Drogajil: Sistema de Atendimento e Vendas"**
 
+ID da planilha (para o n8n): `18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI`
+
 Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.**
 
 | Aba | Colunas |
@@ -54,6 +56,12 @@ Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.*
 - Status de pedido (aba Listas): **Novo, Aguardando receita, Aguardando entrega, Saiu para entrega, Entregue, Cancelado.**
 - Colunas marcadas como **"calculado"** têm fórmulas: o n8n **nunca** deve escrever nelas.
 - A aba **Receitas** e os **dados de clientes** são dados de saúde protegidos pela **LGPD**.
+
+### Dados de teste (preenchidos em 09/10/2026)
+- **Produtos e Estoque:** catálogo de 163 produtos (`P0001` a `P0163`) em todas as categorias. Fica para uso real, mas os **preços são aproximados** e o Jildean deve conferir antes de vender. Cópia em `dados/produtos.csv`.
+- **Dados fictícios, para apagar antes de abrir para clientes:** Clientes (10, telefones `5561900000001` a `5561900000010`), Pedidos (`PED-0001` a `PED-0007`), Itens_Pedidos, Pagamentos (`PAG-`), Entregas (`ENT-`), Atendimentos (`ATD-`), Receitas (`R0001` a `R0003`).
+- **Atendentes:** nomes fictícios com telefone `[[PREENCHER]]`. O Jildean precisa colocar os números reais antes de testar transferências.
+- Formato dos códigos usados: `PED-0001`, `PAG-0001`, `ENT-0001`, `ATD-0001`, `R0001`, `P0001`. Os fluxos do n8n devem seguir o mesmo formato.
 
 ## O atendente de IA no n8n
 - Roda no nó **AI Agent**, com o modelo **Claude**.

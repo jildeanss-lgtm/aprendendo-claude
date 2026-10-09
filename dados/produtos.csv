@@ -1,0 +1,164 @@
+id_produto,nome,principio_ativo,categoria,apresentacao,preco,exige_receita,controlado,ativo,estoque_inicial,estoque_minimo
+P0001,Dorflex,dipirona + orfenadrina + cafeína,Medicamento,caixa com 10 comprimidos,8.90,Não,Não,Sim,60,15
+P0002,Neosaldina,dipirona + isometepteno + cafeína,Medicamento,caixa com 10 drágeas,11.50,Não,Não,Sim,40,10
+P0003,Novalgina 1 g,dipirona,Medicamento,caixa com 10 comprimidos,14.90,Não,Não,Sim,30,10
+P0004,Tylenol 750 mg,paracetamol,Medicamento,caixa com 20 comprimidos,22.90,Não,Não,Sim,25,8
+P0005,Advil 400 mg,ibuprofeno,Medicamento,caixa com 8 cápsulas,19.90,Não,Não,Sim,20,6
+P0006,Buscopan Composto,escopolamina + dipirona,Medicamento,caixa com 20 comprimidos,24.90,Não,Não,Sim,25,8
+P0007,Buscopan 10 mg,escopolamina,Medicamento,caixa com 20 drágeas,19.90,Não,Não,Sim,15,5
+P0008,Engov,mepiramina + hidróxido de alumínio + ácido acetilsalicílico + cafeína,Medicamento,envelope com 6 comprimidos,6.50,Não,Não,Sim,40,10
+P0009,Benegrip,dipirona + clorfeniramina + cafeína,Medicamento,caixa com 6 comprimidos,9.90,Não,Não,Sim,35,10
+P0010,Cimegripe,paracetamol + clorfeniramina + fenilefrina,Medicamento,caixa com 20 cápsulas,16.90,Não,Não,Sim,30,10
+P0011,Resfenol,paracetamol + clorfeniramina + fenilefrina,Medicamento,caixa com 20 cápsulas,18.90,Não,Não,Sim,4,8
+P0012,Vick VapoRub,cânfora + mentol + óleo de eucalipto,Medicamento,pote com 30 g,21.90,Não,Não,Sim,15,5
+P0013,Strepsils Mel e Limão,amilmetacresol + álcool diclorobenzílico,Medicamento,caixa com 8 pastilhas,15.90,Não,Não,Sim,20,6
+P0014,Eno Sal de Frutas,bicarbonato de sódio + carbonato de sódio + ácido cítrico,Medicamento,caixa com 2 envelopes de 5 g,4.50,Não,Não,Sim,50,15
+P0015,Estomazil,bicarbonato de sódio + carbonato de sódio + ácido cítrico,Medicamento,caixa com 5 envelopes de 5 g,8.90,Não,Não,Sim,25,8
+P0016,Luftal 40 mg,simeticona,Medicamento,caixa com 20 comprimidos,13.90,Não,Não,Sim,20,6
+P0017,Dramin B6,dimenidrinato + piridoxina,Medicamento,caixa com 10 comprimidos,14.50,Não,Não,Sim,15,5
+P0018,Epocler,citrato de colina + betaína + metionina,Medicamento,caixa com 6 flaconetes de 10 ml,12.90,Não,Não,Sim,20,6
+P0019,Claritin 10 mg,loratadina,Medicamento,caixa com 12 comprimidos,29.90,Não,Não,Sim,12,4
+P0020,Allegra 120 mg,fexofenadina,Medicamento,caixa com 10 comprimidos,39.90,Não,Não,Sim,10,4
+P0021,Neosoro,nafazolina,Medicamento,frasco com 30 ml,9.90,Não,Não,Sim,20,6
+P0022,"Rinosoro 0,9%",cloreto de sódio,Medicamento,spray com 50 ml,17.90,Não,Não,Sim,15,5
+P0023,Salonpas,salicilato de metila + mentol + cânfora,Medicamento,caixa com 10 adesivos,22.90,Não,Não,Sim,12,4
+P0024,Cataflam Emulgel,diclofenaco dietilamônio,Medicamento,bisnaga com 60 g,34.90,Não,Não,Sim,10,4
+P0025,Gelol Spray,salicilato de metila + cânfora + mentol,Medicamento,spray com 150 ml,26.90,Não,Não,Não,0,0
+P0026,Bepantol Derma,dexpantenol,Medicamento,creme com 20 g,29.90,Não,Não,Sim,12,4
+P0027,Nebacetin,neomicina + bacitracina,Medicamento,pomada com 15 g,24.90,Não,Não,Sim,10,4
+P0028,Merthiolate,digliconato de clorexidina,Medicamento,spray com 45 ml,19.90,Não,Não,Sim,12,4
+P0029,Floralyte 45,sais para reidratação oral,Medicamento,frasco com 500 ml,9.90,Não,Não,Sim,20,6
+P0030,Plasil 10 mg,metoclopramida,Medicamento,caixa com 20 comprimidos,15.90,Sim,Não,Sim,10,4
+P0031,Glifage XR 500 mg,metformina,Medicamento,caixa com 30 comprimidos,18.90,Sim,Não,Sim,15,5
+P0032,Puran T4 50 mcg,levotiroxina,Medicamento,caixa com 30 comprimidos,14.90,Sim,Não,Sim,15,5
+P0033,Selozok 50 mg,succinato de metoprolol,Medicamento,caixa com 30 comprimidos,59.90,Sim,Não,Sim,8,3
+P0034,Aradois 50 mg,losartana,Medicamento,caixa com 30 comprimidos,45.90,Sim,Não,Sim,8,3
+P0035,Citalor 20 mg,atorvastatina,Medicamento,caixa com 30 comprimidos,89.90,Sim,Não,Sim,6,2
+P0036,Pantozol 40 mg,pantoprazol,Medicamento,caixa com 28 comprimidos,89.90,Sim,Não,Sim,6,2
+P0037,Predsim 20 mg,prednisolona,Medicamento,caixa com 10 comprimidos,29.90,Sim,Não,Sim,8,3
+P0038,Yasmin,drospirenona + etinilestradiol,Medicamento,cartela com 21 comprimidos,69.90,Sim,Não,Sim,10,4
+P0039,Ciclo 21,levonorgestrel + etinilestradiol,Medicamento,cartela com 21 comprimidos,9.90,Sim,Não,Sim,20,6
+P0040,Amoxil 500 mg,amoxicilina,Medicamento,caixa com 21 cápsulas,39.90,Sim,Não,Sim,8,3
+P0041,Clavulin BD 875 mg,amoxicilina + clavulanato de potássio,Medicamento,caixa com 14 comprimidos,129.90,Sim,Não,Sim,4,2
+P0042,Rivotril 2 mg,clonazepam,Medicamento,caixa com 30 comprimidos,15.90,Sim,Sim,Sim,10,4
+P0043,"Rivotril gotas 2,5 mg/ml",clonazepam,Medicamento,frasco com 20 ml,12.90,Sim,Sim,Sim,8,3
+P0044,Frontal 1 mg,alprazolam,Medicamento,caixa com 30 comprimidos,39.90,Sim,Sim,Sim,6,2
+P0045,Zoloft 50 mg,sertralina,Medicamento,caixa com 28 comprimidos,119.90,Sim,Sim,Sim,5,2
+P0046,Lexapro 10 mg,escitalopram,Medicamento,caixa com 30 comprimidos,139.90,Sim,Sim,Sim,4,2
+P0047,Ritalina 10 mg,metilfenidato,Medicamento,caixa com 30 comprimidos,49.90,Sim,Sim,Sim,4,2
+P0048,Tramal 50 mg,tramadol,Medicamento,caixa com 10 cápsulas,39.90,Sim,Sim,Sim,5,2
+P0049,Lyrica 75 mg,pregabalina,Medicamento,caixa com 28 cápsulas,159.90,Sim,Sim,Sim,3,2
+P0050,Stilnox 10 mg,zolpidem,Medicamento,caixa com 20 comprimidos,69.90,Sim,Sim,Sim,4,2
+P0051,Seroquel 25 mg,quetiapina,Medicamento,caixa com 28 comprimidos,99.90,Sim,Sim,Não,0,0
+P0052,Dipirona 500 mg/ml gotas,dipirona,Genérico,frasco com 20 ml,6.90,Não,Não,Sim,50,15
+P0053,Dipirona 1 g,dipirona,Genérico,caixa com 10 comprimidos,7.90,Não,Não,Sim,60,15
+P0054,Paracetamol 750 mg,paracetamol,Genérico,caixa com 20 comprimidos,8.90,Não,Não,Sim,50,15
+P0055,Paracetamol 200 mg/ml gotas,paracetamol,Genérico,frasco com 15 ml,7.50,Não,Não,Sim,30,10
+P0056,Ibuprofeno 50 mg/ml gotas,ibuprofeno,Genérico,frasco com 30 ml,12.90,Não,Não,Sim,20,6
+P0057,Loratadina 10 mg,loratadina,Genérico,caixa com 12 comprimidos,9.90,Não,Não,Sim,25,8
+P0058,Ácido acetilsalicílico 100 mg,ácido acetilsalicílico,Genérico,caixa com 30 comprimidos,5.90,Não,Não,Sim,30,10
+P0059,Simeticona 75 mg/ml gotas,simeticona,Genérico,frasco com 10 ml,7.90,Não,Não,Sim,25,8
+P0060,Loperamida 2 mg,loperamida,Genérico,caixa com 12 comprimidos,9.90,Não,Não,Sim,15,5
+P0061,Albendazol 400 mg,albendazol,Genérico,caixa com 1 comprimido,6.90,Não,Não,Sim,20,6
+P0062,Ibuprofeno 600 mg,ibuprofeno,Genérico,caixa com 20 comprimidos,14.90,Sim,Não,Sim,20,6
+P0063,Nimesulida 100 mg,nimesulida,Genérico,caixa com 12 comprimidos,9.90,Sim,Não,Sim,30,10
+P0064,Diclofenaco sódico 50 mg,diclofenaco sódico,Genérico,caixa com 20 comprimidos,7.90,Sim,Não,Sim,25,8
+P0065,"Dexametasona creme 0,1%",dexametasona,Genérico,bisnaga com 10 g,7.90,Sim,Não,Sim,15,5
+P0066,Omeprazol 20 mg,omeprazol,Genérico,caixa com 28 cápsulas,14.90,Sim,Não,Sim,40,10
+P0067,Pantoprazol 40 mg,pantoprazol,Genérico,caixa com 28 comprimidos,29.90,Sim,Não,Sim,20,6
+P0068,Domperidona 10 mg,domperidona,Genérico,caixa com 30 comprimidos,14.90,Sim,Não,Sim,15,5
+P0069,Ondansetrona 8 mg,ondansetrona,Genérico,caixa com 10 comprimidos,24.90,Sim,Não,Sim,10,4
+P0070,Dexclorfeniramina 2 mg,dexclorfeniramina,Genérico,caixa com 20 comprimidos,8.90,Sim,Não,Sim,15,5
+P0071,Prednisona 20 mg,prednisona,Genérico,caixa com 10 comprimidos,8.90,Sim,Não,Sim,15,5
+P0072,Losartana potássica 50 mg,losartana,Genérico,caixa com 30 comprimidos,9.90,Sim,Não,Sim,60,20
+P0073,Enalapril 10 mg,enalapril,Genérico,caixa com 30 comprimidos,7.90,Sim,Não,Sim,30,10
+P0074,Hidroclorotiazida 25 mg,hidroclorotiazida,Genérico,caixa com 30 comprimidos,5.90,Sim,Não,Sim,30,10
+P0075,Atenolol 25 mg,atenolol,Genérico,caixa com 30 comprimidos,7.90,Sim,Não,Sim,25,8
+P0076,Anlodipino 5 mg,anlodipino,Genérico,caixa com 30 comprimidos,9.90,Sim,Não,Sim,30,10
+P0077,Captopril 25 mg,captopril,Genérico,caixa com 30 comprimidos,6.90,Sim,Não,Sim,20,6
+P0078,Metformina 850 mg,metformina,Genérico,caixa com 30 comprimidos,8.90,Sim,Não,Sim,40,15
+P0079,Glibenclamida 5 mg,glibenclamida,Genérico,caixa com 30 comprimidos,5.90,Sim,Não,Sim,20,6
+P0080,Sinvastatina 20 mg,sinvastatina,Genérico,caixa com 30 comprimidos,9.90,Sim,Não,Sim,30,10
+P0081,Atorvastatina 20 mg,atorvastatina,Genérico,caixa com 30 comprimidos,24.90,Sim,Não,Sim,20,6
+P0082,Levotiroxina 50 mcg,levotiroxina,Genérico,caixa com 30 comprimidos,9.90,Sim,Não,Sim,20,6
+P0083,Fluconazol 150 mg,fluconazol,Genérico,caixa com 1 cápsula,6.90,Sim,Não,Sim,20,6
+P0084,Amoxicilina 500 mg,amoxicilina,Genérico,caixa com 21 cápsulas,19.90,Sim,Não,Sim,25,8
+P0085,Azitromicina 500 mg,azitromicina,Genérico,caixa com 3 comprimidos,17.90,Sim,Não,Sim,20,6
+P0086,Cefalexina 500 mg,cefalexina,Genérico,caixa com 8 cápsulas,19.90,Sim,Não,Sim,15,5
+P0087,Ciprofloxacino 500 mg,ciprofloxacino,Genérico,caixa com 14 comprimidos,22.90,Sim,Não,Sim,2,5
+P0088,Sulfametoxazol + trimetoprima 400 mg + 80 mg,sulfametoxazol + trimetoprima,Genérico,caixa com 20 comprimidos,11.90,Sim,Não,Sim,12,4
+P0089,Clonazepam 2 mg,clonazepam,Genérico,caixa com 30 comprimidos,9.90,Sim,Sim,Sim,20,6
+P0090,Diazepam 10 mg,diazepam,Genérico,caixa com 30 comprimidos,9.90,Sim,Sim,Sim,15,5
+P0091,"Alprazolam 0,5 mg",alprazolam,Genérico,caixa com 30 comprimidos,14.90,Sim,Sim,Sim,12,4
+P0092,Sertralina 50 mg,sertralina,Genérico,caixa com 30 comprimidos,29.90,Sim,Sim,Sim,15,5
+P0093,Fluoxetina 20 mg,fluoxetina,Genérico,caixa com 30 cápsulas,12.90,Sim,Sim,Sim,20,6
+P0094,Escitalopram 10 mg,escitalopram,Genérico,caixa com 30 comprimidos,39.90,Sim,Sim,Sim,10,4
+P0095,Amitriptilina 25 mg,amitriptilina,Genérico,caixa com 30 comprimidos,14.90,Sim,Sim,Sim,12,4
+P0096,Creme dental Colgate Total 12,,Higiene,tubo com 90 g,12.90,Não,Não,Sim,30,10
+P0097,Escova dental Oral-B Indicator,,Higiene,"1 unidade, cerdas macias",9.90,Não,Não,Sim,25,8
+P0098,Fio dental Oral-B Essential,,Higiene,rolo com 50 m,11.90,Não,Não,Sim,15,5
+P0099,Enxaguante bucal Listerine Cool Mint,,Higiene,frasco com 500 ml,24.90,Não,Não,Sim,12,4
+P0100,Sabonete Dove Original,,Higiene,barra com 90 g,4.90,Não,Não,Sim,50,15
+P0101,Sabonete líquido Protex,,Higiene,frasco com 250 ml,14.90,Não,Não,Sim,15,5
+P0102,Desodorante Rexona aerossol,,Higiene,frasco com 150 ml,16.90,Não,Não,Sim,20,6
+P0103,Desodorante Dove roll-on,,Higiene,frasco com 50 ml,14.90,Não,Não,Sim,15,5
+P0104,Absorvente Always Noturno,,Higiene,pacote com 8 unidades,11.90,Não,Não,Sim,20,6
+P0105,Protetor diário Carefree,,Higiene,pacote com 15 unidades,7.90,Não,Não,Sim,20,6
+P0106,Álcool em gel 70%,,Higiene,frasco com 500 g,12.90,Não,Não,Sim,20,6
+P0107,Algodão em bolas Cremer,,Higiene,pacote com 50 g,5.90,Não,Não,Sim,20,6
+P0108,Hastes flexíveis Cotonetes,,Higiene,caixa com 75 unidades,6.90,Não,Não,Sim,20,6
+P0109,Aparelho de barbear Gillette Prestobarba,,Higiene,pacote com 2 unidades,12.90,Não,Não,Sim,15,5
+P0110,Preservativo Jontex Lubrificado,,Higiene,caixa com 3 unidades,9.90,Não,Não,Sim,20,6
+P0111,Shampoo Seda,,Higiene,frasco com 325 ml,14.90,Não,Não,Sim,12,4
+P0112,Condicionador Pantene,,Higiene,frasco com 400 ml,22.90,Não,Não,Sim,10,4
+P0113,Protetor solar Neutrogena Sun Fresh FPS 50,,Beleza,frasco com 120 ml,69.90,Não,Não,Sim,8,3
+P0114,Protetor solar facial La Roche-Posay Anthelios FPS 70,,Beleza,bisnaga com 40 g,99.90,Não,Não,Sim,5,2
+P0115,Creme hidratante Nivea Soft,,Beleza,pote com 98 g,19.90,Não,Não,Sim,12,4
+P0116,Hidratante corporal Neutrogena Norwegian,,Beleza,frasco com 200 ml,39.90,Não,Não,Sim,8,3
+P0117,Loção hidratante Cetaphil,,Beleza,frasco com 200 ml,64.90,Não,Não,Sim,6,2
+P0118,Sabonete líquido facial Cetaphil,,Beleza,frasco com 300 ml,69.90,Não,Não,Sim,5,2
+P0119,Água micelar Garnier,,Beleza,frasco com 400 ml,39.90,Não,Não,Sim,8,3
+P0120,Hidratante labial Nivea,,Beleza,"bastão com 4,8 g",14.90,Não,Não,Sim,15,5
+P0121,Esmalte Risqué,,Beleza,frasco com 8 ml,5.90,Não,Não,Sim,30,10
+P0122,Removedor de esmalte Risqué,,Beleza,frasco com 100 ml,6.90,Não,Não,Sim,15,5
+P0123,Creme para pentear Seda,,Beleza,pote com 300 ml,14.90,Não,Não,Sim,10,4
+P0124,Coloração Koleston,,Beleza,kit com 1 aplicação,29.90,Não,Não,Não,0,0
+P0125,Vitamina C Redoxon 1 g efervescente,vitamina C,Suplemento,tubo com 10 comprimidos,29.90,Não,Não,Sim,15,5
+P0126,Centrum A a Zinco,polivitamínico,Suplemento,frasco com 30 comprimidos,59.90,Não,Não,Sim,8,3
+P0127,Vitamina D3 2.000 UI,colecalciferol,Suplemento,frasco com 30 cápsulas,29.90,Não,Não,Sim,15,5
+P0128,Ômega 3 1.000 mg,óleo de peixe,Suplemento,frasco com 60 cápsulas,49.90,Não,Não,Sim,8,3
+P0129,Colágeno hidrolisado,colágeno,Suplemento,pote com 300 g,59.90,Não,Não,Sim,6,2
+P0130,Magnésio dimalato,magnésio,Suplemento,frasco com 60 cápsulas,39.90,Não,Não,Sim,8,3
+P0131,Complexo B,vitaminas do complexo B,Suplemento,frasco com 30 comprimidos,14.90,Não,Não,Sim,15,5
+P0132,Biotina,biotina,Suplemento,frasco com 45 cápsulas,39.90,Não,Não,Sim,6,2
+P0133,Lavitan Mulher,polivitamínico,Suplemento,frasco com 60 comprimidos,34.90,Não,Não,Sim,10,4
+P0134,Cálcio + vitamina D3,carbonato de cálcio + colecalciferol,Suplemento,frasco com 60 comprimidos,49.90,Não,Não,Sim,8,3
+P0135,Zinco quelado,zinco,Suplemento,frasco com 60 cápsulas,29.90,Não,Não,Sim,8,3
+P0136,"Melatonina 0,21 mg gotas",melatonina,Suplemento,frasco com 20 ml,39.90,Não,Não,Sim,3,4
+P0137,Fralda Pampers Confort Sec M,,Infantil,pacote com 46 unidades,69.90,Não,Não,Sim,10,4
+P0138,Fralda Huggies Supreme Care G,,Infantil,pacote com 32 unidades,79.90,Não,Não,Sim,10,4
+P0139,Lenço umedecido Huggies,,Infantil,pacote com 48 unidades,12.90,Não,Não,Sim,25,8
+P0140,Pomada Hipoglós,óxido de zinco + vitaminas A e D,Infantil,bisnaga com 45 g,21.90,Não,Não,Sim,15,5
+P0141,Bepantol Baby,dexpantenol,Infantil,bisnaga com 30 g,29.90,Não,Não,Sim,12,4
+P0142,Shampoo Johnson's Baby,,Infantil,frasco com 200 ml,18.90,Não,Não,Sim,12,4
+P0143,Sabonete Johnson's Baby,,Infantil,barra com 80 g,4.90,Não,Não,Sim,25,8
+P0144,Colônia Johnson's Baby,,Infantil,frasco com 200 ml,24.90,Não,Não,Sim,8,3
+P0145,Mamadeira Lillo,,Infantil,1 unidade com 240 ml,29.90,Não,Não,Sim,6,2
+P0146,Chupeta NUK,,Infantil,"1 unidade, tamanho 1",19.90,Não,Não,Sim,8,3
+P0147,Fórmula infantil NAN Supreme 1,,Infantil,lata com 800 g,89.90,Não,Não,Sim,6,2
+P0148,Alivium gotas 100 mg/ml,ibuprofeno,Infantil,frasco com 30 ml,29.90,Não,Não,Sim,10,4
+P0149,Termômetro digital G-Tech,,Outros,1 unidade,24.90,Não,Não,Sim,6,2
+P0150,Medidor de pressão de pulso G-Tech,,Outros,1 unidade,99.90,Não,Não,Sim,3,1
+P0151,Teste de gravidez Confirme,,Outros,caixa com 1 teste,12.90,Não,Não,Sim,10,4
+P0152,Tiras para glicemia Accu-Chek Active,,Outros,caixa com 50 tiras,89.90,Não,Não,Sim,6,2
+P0153,Lancetas Accu-Chek Softclix,,Outros,caixa com 25 lancetas,24.90,Não,Não,Sim,6,2
+P0154,Seringa de insulina BD Ultra-Fine 1 ml,,Outros,pacote com 10 unidades,19.90,Não,Não,Sim,10,4
+P0155,Curativo Band-Aid,,Outros,caixa com 40 unidades,12.90,Não,Não,Sim,15,5
+P0156,Gaze estéril,,Outros,pacote com 10 unidades,4.90,Não,Não,Sim,20,6
+P0157,Esparadrapo Cremer,,Outros,"rolo de 10 cm x 4,5 m",9.90,Não,Não,Sim,10,4
+P0158,Atadura de crepom 10 cm,,Outros,1 unidade,3.90,Não,Não,Sim,15,5
+P0159,"Soro fisiológico 0,9%",cloreto de sódio,Outros,frasco com 250 ml,6.90,Não,Não,Sim,25,8
+P0160,Água oxigenada 10 volumes,peróxido de hidrogênio,Outros,frasco com 100 ml,4.50,Não,Não,Sim,15,5
+P0161,Álcool 70% líquido,,Outros,frasco com 1 litro,9.90,Não,Não,Sim,15,5
+P0162,Máscara descartável tripla,,Outros,caixa com 50 unidades,19.90,Não,Não,Sim,8,3
+P0163,Repelente Off Family,,Outros,spray com 200 ml,29.90,Não,Não,Sim,10,4

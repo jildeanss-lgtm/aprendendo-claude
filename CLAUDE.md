@@ -68,7 +68,10 @@ Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.*
 - **Memória por conversa**, com chave = telefone do cliente.
 - Sete ferramentas, com **exatamente** estes nomes:
   `consultar_produtos`, `consultar_cliente`, `salvar_cliente`, `registrar_pedido`, `acionar_entrega`, `transferir_farmaceutico`, `transferir_atendente`.
-- O **prompt de sistema** aprovado está em `prompts/atendente.md` (versão revisada e aprovada pelo Jildean em 09/10/2026). Vai no campo System Message do AI Agent, em modo Expression (por causa da linha de data e hora).
+- O **prompt de sistema** aprovado está em `prompts/atendente.md` (versão revisada e aprovada pelo Jildean em 09/10/2026). Vai no campo System Message do AI Agent e **não pode ter nada que mude a cada mensagem** (como data e hora).
+- **Data e hora vão na mensagem do usuário, não no prompt de sistema.** No AI Agent, "Source for Prompt (User Message)" = "Define below", em modo Expression:
+  `[Data e hora atuais: {{ $now.setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm') }}]` + quebra de linha + `{{ $json.chatInput }}`. Quando ligar o WhatsApp, trocar `$json.chatInput` pelo campo do texto da mensagem.
+- **Lição aprendida (09/10/2026):** o Claude (Haiku 5.5) guarda blocos de "pensamento" na memória da conversa, e eles só valem se o prompt de sistema for **idêntico** ao da hora em que foram criados. Com `{{ $now }}` no prompt de sistema, o texto mudava a cada minuto e a segunda mensagem dava erro "Invalid signature in thinking block ... system prompt differs". Mudar o prompt de sistema também quebra as conversas que já estão na memória: depois de editar o prompt, começar uma sessão nova no chat.
 - **Decisão:** `registrar_pedido` tem dois modos. Com `confirmado` = false, o n8n calcula o resumo (subtotal, taxa, total) e devolve sem gravar; com `confirmado` = true, grava o pedido. A IA nunca faz contas.
 - **Decisão:** a IA sempre chama `acionar_entrega` após registrar; o fluxo do n8n decide se a entrega sai agora ou a partir das 08:00.
 - **Decisão:** pedido com receita ou controlado: a IA pede a foto, chama `transferir_farmaceutico` e não chama `registrar_pedido` nem `acionar_entrega`. A IA só sugere produto alternativo (mesmo princípio ativo) para itens sem receita.

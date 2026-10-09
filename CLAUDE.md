@@ -63,5 +63,5 @@ Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.*
 - Os **cálculos de dinheiro** (subtotal, taxa, total) são feitos pelo **fluxo do n8n**, não pela IA, para evitar erro de conta.
 
 ## Situação atual
-- **Já tem:** a planilha criada e o prompt do atendente escrito.
-- **Ainda não tem:** conta no n8n, chave da API da Anthropic, conexão com o WhatsApp.
+- **Já tem:** a planilha criada, o prompt do atendente escrito e a conta no n8n Cloud.
+- **Ainda não tem:** chave da API da Anthropic, conexão com o WhatsApp.

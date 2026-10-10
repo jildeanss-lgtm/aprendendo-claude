@@ -1,0 +1,205 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "1f673d03-cac0-56fb-8665-857d30b21db3",
+      "name": "Todo dia 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Configuração",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "910f5f47-5087-5b5c-9c1e-6f87aa970453",
+      "name": "Ler configuracao",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        300
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Entregas",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "37cb541e-7a46-59ff-9123-9c0e67dc58a4",
+      "name": "Ler entregas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        440,
+        300
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Atendentes",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "ac2a81f8-28b1-5ed3-b44b-541560cb075d",
+      "name": "Ler atendentes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        660,
+        300
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Libera as entregas que ficaram pendentes fora do horário: coloca o motoboy do turno da abertura.\nfunction normalizar(s) {\n  return String(s ?? '').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().trim();\n}\nfunction minutos(hhmm) {\n  const m = /(\\d{1,2}):(\\d{2})/.exec(String(hhmm ?? ''));\n  return m ? Number(m[1]) * 60 + Number(m[2]) : NaN;\n}\n\nconst config = {};\nfor (const item of $('Ler configuracao').all()) config[item.json.parametro] = item.json.valor;\nconst abre = minutos(config.horario_abertura);\nconst fecha = minutos(config.horario_fechamento);\nconst agora = $now.setZone('America/Sao_Paulo');\nconst agoraMin = agora.hour * 60 + agora.minute;\n\n// Segurança: só libera dentro do horário de funcionamento.\nif (!(Number.isFinite(abre) && Number.isFinite(fecha) && agoraMin >= abre && agoraMin < fecha)) {\n  return [];\n}\n\nconst motoboys = $('Ler atendentes').all().map(i => i.json)\n  .filter(a => normalizar(a.funcao) === 'motoboy' && normalizar(a.ativo) === 'sim');\nconst doTurno = motoboys.find(a => {\n  const [ini, fim] = String(a.horario ?? '').split(/a|às|-|até/i).map(minutos);\n  return Number.isFinite(ini) && Number.isFinite(fim) && agoraMin >= ini && agoraMin < fim;\n});\nconst motoboy = (doTurno || motoboys[0] || {}).nome || '';\nif (!motoboy) return [];\n\nconst hoje = agora.toFormat('dd/MM HH:mm');\nconst pendentes = $('Ler entregas').all().map(i => i.json)\n  .filter(e => e && e.id_entrega && normalizar(e.status) === 'pendente' && String(e.motoboy ?? '').trim() === '');\n\nreturn pendentes.map(e => ({\n  json: {\n    id_entrega: e.id_entrega,\n    motoboy,\n    observacoes: [String(e.observacoes ?? '').trim(), `Liberada em ${hoje} para ${motoboy}.`].filter(Boolean).join(' '),\n  }\n}));\n"
+      },
+      "id": "e284afa2-d2a7-5ec9-9149-775a4a21ac91",
+      "name": "Liberar entregas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Entregas",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "id_entrega"
+          ],
+          "schema": []
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "23cfb0e4-f9bd-565e-95e9-3bbfcb34f892",
+      "name": "Atualizar entregas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1100,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Todo dia 08:00": {
+      "main": [
+        [
+          {
+            "node": "Ler configuracao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler configuracao": {
+      "main": [
+        [
+          {
+            "node": "Ler entregas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler entregas": {
+      "main": [
+        [
+          {
+            "node": "Ler atendentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler atendentes": {
+      "main": [
+        [
+          {
+            "node": "Liberar entregas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Liberar entregas": {
+      "main": [
+        [
+          {
+            "node": "Atualizar entregas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -108,4 +108,6 @@ Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.*
 - **10A (10/10/2026):** `Ferramenta - transferir` importado e credenciais escolhidas. Na primeira vez a publicação não terminou (a janela "Publicação do fluxo de trabalho" pede o nome da versão e só publica ao clicar no botão Publicar dela), e deu "O fluxo de trabalho não está ativo". Depois de confirmar, publicado.
 - **10B (10/10/2026):** `transferir_farmaceutico` e `transferir_atendente` ligadas ao agente (7 ferramentas). Teste do Rivotril 2 mg com foto: gravou **ATD-0008** (Farmacêutico, Transferido) e **R0004** (Controlada, Aguardando validação, Marcos Lima Teste), sem pedido.
 - **Corrigir no prompt (etapa 11):** quando a transferência falhou, a IA disse ao cliente "já registrei sua solicitação", o que não era verdade. Acrescentar: se uma ferramenta falhar, não dizer que registrou.
-- **Próxima etapa:** 10C, testar `transferir_atendente` (reclamação) e dúvida de dose.
+- **Etapa 10 concluída (10/10/2026):** reclamação de atraso → **ATD-0009** (Atendente, Ana Souza Teste); dúvida de dose da dipirona → **ATD-0010** (Farmacêutico), sem receita criada e sem dizer a dose.
+- **Corrigir no prompt (etapa 11):** na reclamação, a IA transferiu e só depois pediu o número do pedido, e disse "já registrei no protocolo" um detalhe que não foi gravado. Pedir os dados antes de transferir e não dizer que acrescentou nada depois.
+- **Próxima etapa:** 11, ajustes do prompt e bateria de testes das regras (Haiku 5.5 e Sonnet 5.5).

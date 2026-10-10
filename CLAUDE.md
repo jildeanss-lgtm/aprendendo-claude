@@ -105,4 +105,5 @@ Os cabeçalhos estão sempre na **linha 1**. **Não mudar os nomes das colunas.*
 - **Etapa 9 concluída (10/10/2026):** fluxo agendado `Entregas das 08:00` (6 nós, `fluxos/entregas_8h.json`): todo dia às 08:00 põe o motoboy do turno nas entregas "Pendente" sem motoboy e anota "Liberada em ...". Teste manual: a ENT-0005 recebeu o Carlos Pereira Teste; a ENT-0006 (que já tinha motoboy) não foi mexida. Publicado. **Conferir:** fuso horário do fluxo em America/Sao_Paulo (o Jildean não confirmou).
 - **Etapa 10 (em andamento):** fluxo `Ferramenta - transferir` (12 nós, `fluxos/transferir.json`), usado pelas duas ferramentas com destino fixo. Grava em Atendimentos (status "Transferido") e, com receita, em Receitas ("Aguardando validação", sem pedido). Textos da ligação em `fluxos/transferir.md`.
 - **Decisão (10/10/2026, opção A):** depois de transferir, o robô fica quieto com aquele cliente enquanto houver atendimento "Transferido"; volta quando a pessoa marcar "Resolvido". Implementar na etapa 13 (WhatsApp).
-- **Próxima etapa:** importar e publicar `Ferramenta - transferir`, ligar as duas ferramentas no agente e testar.
+- **10A (10/10/2026):** `Ferramenta - transferir` importado, credenciais escolhidas e publicado.
+- **Próxima etapa:** 10B, ligar `transferir_farmaceutico` e `transferir_atendente` no agente e testar.

@@ -1,0 +1,397 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "destino"
+            },
+            {
+              "name": "assunto"
+            },
+            {
+              "name": "resumo"
+            },
+            {
+              "name": "tipo_receita"
+            },
+            {
+              "name": "link_foto"
+            }
+          ]
+        }
+      },
+      "id": "e9d8c6f6-b54e-57f1-b1f2-e4a7606b48bd",
+      "name": "Entrada",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Atendimentos",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "f3966b20-fd13-50e2-8d41-04bbd9f21ce5",
+      "name": "Ler atendimentos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        300
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Receitas",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "e76411e6-d080-5755-bc6d-7d719769bfb0",
+      "name": "Ler receitas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        440,
+        300
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Atendentes",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "d47796dd-659a-5558-922e-3422ed809d37",
+      "name": "Ler atendentes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        660,
+        300
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Monta o registro da transferência (aba Atendimentos) e, se houver receita, o da aba Receitas.\nconst entrada = $('Entrada').first().json;\n\nfunction normalizar(s) {\n  return String(s ?? '').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().trim();\n}\nfunction minutos(hhmm) {\n  const m = /(\\d{1,2}):(\\d{2})/.exec(String(hhmm ?? ''));\n  return m ? Number(m[1]) * 60 + Number(m[2]) : NaN;\n}\nfunction proximo(itens, campo, prefixo) {\n  let maior = 0;\n  const re = new RegExp('^' + prefixo + '(\\\\d+)$');\n  for (const i of itens) {\n    const m = re.exec(String(i.json?.[campo] ?? '').trim());\n    if (m) maior = Math.max(maior, Number(m[1]));\n  }\n  return prefixo + String(maior + 1).padStart(4, '0');\n}\n\nconst destino = normalizar(entrada.destino).startsWith('farmac') ? 'Farmacêutico' : 'Atendente';\nconst agora = $now.setZone('America/Sao_Paulo');\nconst agoraMin = agora.hour * 60 + agora.minute;\nconst dataHora = agora.toFormat('dd/MM/yyyy HH:mm:ss');\n\n// Pessoa do turno com a função de destino (aba Atendentes)\nconst pessoas = $('Ler atendentes').all().map(i => i.json)\n  .filter(a => normalizar(a.funcao) === normalizar(destino) && normalizar(a.ativo) === 'sim');\nconst doTurno = pessoas.find(a => {\n  const [ini, fim] = String(a.horario ?? '').split(/a|às|-|até/i).map(minutos);\n  return Number.isFinite(ini) && Number.isFinite(fim) && agoraMin >= ini && agoraMin < fim;\n});\nconst responsavel = (doTurno || pessoas[0] || {}).nome || '';\n\nconst atendimento = {\n  id_atendimento: proximo($('Ler atendimentos').all(), 'id_atendimento', 'ATD-'),\n  data_hora: dataHora,\n  telefone_cliente: \"'\" + entrada.telefone,\n  assunto: String(entrada.assunto ?? '').trim() || (destino === 'Farmacêutico' ? 'Saúde' : 'Atendimento'),\n  resumo: String(entrada.resumo ?? '').trim(),\n  transferido_para: destino,\n  status: 'Transferido',\n  id_pedido: '',\n};\n\n// Receita: só para o farmacêutico e com um tipo reconhecido\nconst t = normalizar(entrada.tipo_receita);\nlet tipo = '';\nif (t.startsWith('control')) tipo = 'Controlada';\nelse if (t.startsWith('antimicro') || t.startsWith('antibio')) tipo = 'Antimicrobiano';\nelse if (t.startsWith('comum') || t.startsWith('simples') || t.startsWith('normal')) tipo = 'Comum';\n\nlet receita = null;\nif (destino === 'Farmacêutico' && tipo) {\n  receita = {\n    id_receita: proximo($('Ler receitas').all(), 'id_receita', 'R'),\n    data_hora: dataHora,\n    telefone_cliente: \"'\" + entrada.telefone,\n    id_pedido: '',\n    link_foto: String(entrada.link_foto ?? '').trim() || '(foto enviada na conversa)',\n    tipo,\n    status: 'Aguardando validação',\n    farmaceutico: responsavel,\n    observacoes: atendimento.resumo,\n  };\n}\n\nconst quem = destino === 'Farmacêutico' ? 'o farmacêutico' : 'um atendente';\nconst mensagem = `TRANSFERIDO para ${destino}${responsavel ? ` (${responsavel})` : ''}: ${atendimento.id_atendimento}` +\n  (receita ? `, receita ${receita.id_receita} aguardando validação` : '') + '. ' +\n  `Avise o cliente com gentileza que ${quem} vai continuar o atendimento por aqui em breve. ` +\n  (receita ? 'Não registre o pedido: ele só é registrado depois que o farmacêutico aprovar a receita. ' : '') +\n  'Não chame esta ferramenta de novo para o mesmo assunto.';\n\nreturn [{ json: { mensagem, tem_receita: receita !== null, atendimento, receita } }];\n"
+      },
+      "id": "90efd741-165f-5fc7-8585-763608e18c9c",
+      "name": "Preparar transferencia",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: $('Preparar transferencia').first().json.atendimento }];"
+      },
+      "id": "b81bd018-df28-585f-ab93-2d64040feb1c",
+      "name": "Linha do atendimento",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Atendimentos",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "80f126ed-5f1b-5b93-9dbc-b37a79f8327f",
+      "name": "Gravar atendimento",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "2c4f8b1a-6d3e-4f90-8a7b-5e1d9c0f3a62",
+              "leftValue": "={{ $('Preparar transferencia').first().json.tem_receita }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "65f99515-9e1c-51e9-a3fe-09569bd0b031",
+      "name": "Tem receita?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: $('Preparar transferencia').first().json.receita }];"
+      },
+      "id": "8a45b30b-5d82-59a5-ab6f-1290efa668f3",
+      "name": "Linha da receita",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Receitas",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "9a081951-0a27-54ab-97c0-215518a16cfa",
+      "name": "Gravar receita",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1980,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { resposta: $('Preparar transferencia').first().json.mensagem } }];"
+      },
+      "id": "ca8579d1-dcb1-5469-9320-4d3d868d1f26",
+      "name": "Resposta com receita",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { resposta: $('Preparar transferencia').first().json.mensagem } }];"
+      },
+      "id": "608ed762-d3eb-5176-b58e-2796b18654db",
+      "name": "Resposta sem receita",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        460
+      ]
+    }
+  ],
+  "connections": {
+    "Entrada": {
+      "main": [
+        [
+          {
+            "node": "Ler atendimentos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler atendimentos": {
+      "main": [
+        [
+          {
+            "node": "Ler receitas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler receitas": {
+      "main": [
+        [
+          {
+            "node": "Ler atendentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler atendentes": {
+      "main": [
+        [
+          {
+            "node": "Preparar transferencia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar transferencia": {
+      "main": [
+        [
+          {
+            "node": "Linha do atendimento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linha do atendimento": {
+      "main": [
+        [
+          {
+            "node": "Gravar atendimento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gravar atendimento": {
+      "main": [
+        [
+          {
+            "node": "Tem receita?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linha da receita": {
+      "main": [
+        [
+          {
+            "node": "Gravar receita",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gravar receita": {
+      "main": [
+        [
+          {
+            "node": "Resposta com receita",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem receita?": {
+      "main": [
+        [
+          {
+            "node": "Linha da receita",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta sem receita",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

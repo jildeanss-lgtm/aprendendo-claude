@@ -17,6 +17,10 @@ os valores vão como texto com vírgula ("17,80") para a planilha em português 
 
 O estoque NÃO é baixado automaticamente (decisão do Jildean em 09/10/2026, opção A).
 
+O nó `Calcular pedido` aceita os itens em JSON (`[{"id_produto": "P0001", "quantidade": 2}]`) ou em texto com os códigos (ex.: `2 x Dorflex - P0001, 1 Vitamina C - P0125`), porque a IA às vezes manda assim.
+
+**Importante:** o fluxo precisa estar **Publicado** no n8n (botão "Publicar"), senão o agente recebe o erro "O fluxo de trabalho não está ativo e não pode ser executado".
+
 ## Ligação no Agente de IA ("Call n8n Workflow Tool")
 Nome do nó: `registrar_pedido`
 

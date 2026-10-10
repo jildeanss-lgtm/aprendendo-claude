@@ -1,0 +1,422 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "id_pedido"
+            }
+          ]
+        }
+      },
+      "id": "f96fad45-8f7b-5bbd-8cc5-22ef153d360e",
+      "name": "Entrada",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Configuração",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "a813cf67-9043-59a9-8cdf-4f94e16559fd",
+      "name": "Ler configuracao",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        300
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Pedidos",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "9a83cf5e-b0f8-5be9-8db8-eef4a603ad84",
+      "name": "Ler pedidos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        440,
+        300
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Entregas",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "087c2814-3543-566c-afcc-9cc115ea3ce6",
+      "name": "Ler entregas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        660,
+        300
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Atendentes",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "879021d7-82a6-51ee-99e8-e70abb188efa",
+      "name": "Ler atendentes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        880,
+        300
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Confere se a entrega pode ser acionada e monta as linhas para Entregas e Pedidos.\nconst entrada = $('Entrada').first().json;\n\nfunction soDigitos(v) { return String(v ?? '').replace(/\\D/g, ''); }\nfunction normalizar(s) {\n  return String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();\n}\nfunction minutos(hhmm) {\n  const m = /(\\d{1,2}):(\\d{2})/.exec(String(hhmm ?? ''));\n  return m ? Number(m[1]) * 60 + Number(m[2]) : NaN;\n}\n\n// Horário de funcionamento (aba Configuração)\nconst config = {};\nfor (const item of $('Ler configuracao').all()) config[item.json.parametro] = item.json.valor;\nconst abre = minutos(config.horario_abertura);\nconst fecha = minutos(config.horario_fechamento);\nconst agora = $now.setZone('America/Sao_Paulo');\nconst agoraMin = agora.hour * 60 + agora.minute;\nconst dentroDoHorario = Number.isFinite(abre) && Number.isFinite(fecha) && agoraMin >= abre && agoraMin < fecha;\n\n// Pedido (aceita \"PED-0008\", \"ped-8\" ou só \"8\")\nconst num = /(\\d+)/.exec(String(entrada.id_pedido ?? ''));\nconst idPedido = num ? 'PED-' + String(Number(num[1])).padStart(4, '0') : '';\nconst pedido = $('Ler pedidos').all().map(i => i.json).find(p => String(p.id_pedido ?? '').trim().toUpperCase() === idPedido);\n\nlet erro = null;\nif (!idPedido) erro = 'Número do pedido não informado. Use o número que registrar_pedido retornou, por exemplo PED-0008.';\nelse if (!pedido) erro = `O pedido ${idPedido} não foi encontrado. Use o número que registrar_pedido retornou.`;\nelse if (soDigitos(pedido.telefone_cliente) !== soDigitos(entrada.telefone)) erro = `O pedido ${idPedido} não pertence a este cliente.`;\nelse if (normalizar(pedido.status) === 'cancelado') erro = `O pedido ${idPedido} está cancelado. Transfira para um atendente se o cliente quiser refazer.`;\n\n// Entrega já existe?\nconst entregas = $('Ler entregas').all().map(i => i.json).filter(e => e && e.id_entrega);\nconst existente = entregas.find(e => String(e.id_pedido ?? '').trim().toUpperCase() === idPedido);\nif (!erro && existente) {\n  return [{ json: { acionar: false, mensagem:\n    `A entrega do pedido ${idPedido} já foi acionada antes (${existente.id_entrega}, situação: ${existente.status}). Não chame acionar_entrega de novo para este pedido.` } }];\n}\nif (erro) return [{ json: { acionar: false, mensagem: 'ENTREGA NÃO ACIONADA. ' + erro } }];\n\n// Próximo número de entrega\nlet maior = 0;\nfor (const e of entregas) {\n  const m = /^ENT-(\\d+)$/.exec(String(e.id_entrega).trim());\n  if (m) maior = Math.max(maior, Number(m[1]));\n}\nconst idEntrega = 'ENT-' + String(maior + 1).padStart(4, '0');\n\n// Motoboy do turno (aba Atendentes), só dentro do horário\nlet motoboy = '';\nif (dentroDoHorario) {\n  const motoboys = $('Ler atendentes').all().map(i => i.json)\n    .filter(a => normalizar(a.funcao) === 'motoboy' && normalizar(a.ativo) === 'sim');\n  const doTurno = motoboys.find(a => {\n    const [ini, fim] = String(a.horario ?? '').split(/a|às|-|até/i).map(minutos);\n    return Number.isFinite(ini) && Number.isFinite(fim) && agoraMin >= ini && agoraMin < fim;\n  });\n  motoboy = (doTurno || motoboys[0] || {}).nome || '';\n}\n\nconst observacao = dentroDoHorario\n  ? 'Acionada pelo atendente virtual. Aguardando o motoboy sair.'\n  : `Pedido feito fora do horário. Sai a partir das ${config.horario_abertura}.`;\n\nconst mensagem = dentroDoHorario\n  ? `ENTREGA ACIONADA: ${idEntrega} para o pedido ${idPedido}${motoboy ? ` (motoboy: ${motoboy})` : ''}. ` +\n    `Avise o cliente que o pedido vai sair para entrega e chega em 30 a 40 minutos. Se o pagamento for Pix, a equipe vai conferir o pagamento.`\n  : `ENTREGA AGENDADA: ${idEntrega} para o pedido ${idPedido}. A farmácia está fora do horário de entrega agora. ` +\n    `Avise o cliente que o pedido está registrado e sai para entrega a partir das ${config.horario_abertura}.`;\n\nreturn [{\n  json: {\n    acionar: true,\n    mensagem,\n    entrega: {\n      id_entrega: idEntrega,\n      id_pedido: idPedido,\n      motoboy,\n      endereco: pedido.endereco_entrega,\n      bairro: pedido.bairro,\n      status: 'Pendente',\n      saiu_em: '',\n      entregue_em: '',\n      observacoes: observacao,\n    },\n    pedido: { id_pedido: idPedido, status: 'Aguardando entrega' },\n  }\n}];\n"
+      },
+      "id": "addbc844-580f-5d6f-890c-22a33234f2b6",
+      "name": "Conferir entrega",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "8d0e7a52-3c1b-4f6e-9a2d-1b7c5e9f0a31",
+              "leftValue": "={{ $json.acionar }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f9a9a9e0-a442-5100-b48a-80d1e0893ca9",
+      "name": "Pode acionar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { resposta: $('Conferir entrega').first().json.mensagem } }];"
+      },
+      "id": "c5d64cc5-79bd-5dbe-8ae2-b32005cb7b6c",
+      "name": "Resposta recusa",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: $('Conferir entrega').first().json.entrega }];"
+      },
+      "id": "40ad3f79-f88c-5be9-a77c-ede93ec2fba5",
+      "name": "Linha da entrega",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Entregas",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "0a42b348-992e-5ea3-a9c0-613f24ce2682",
+      "name": "Gravar entrega",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1760,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: $('Conferir entrega').first().json.pedido }];"
+      },
+      "id": "743c0222-f03c-5689-b4e9-5c617016a2e8",
+      "name": "Status do pedido",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "18baUg9uQS0S2nbfmkEorTYS0JNUQMLAVL5Id_uP0hbI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Pedidos",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "id_pedido"
+          ],
+          "schema": []
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "ae735e0e-4897-540f-a4c5-bad7436f53a2",
+      "name": "Atualizar pedido",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2200,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { resposta: $('Conferir entrega').first().json.mensagem } }];"
+      },
+      "id": "a22a4816-cb6f-5527-95be-cacb41b7d293",
+      "name": "Resposta final",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        160
+      ]
+    }
+  ],
+  "connections": {
+    "Entrada": {
+      "main": [
+        [
+          {
+            "node": "Ler configuracao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler configuracao": {
+      "main": [
+        [
+          {
+            "node": "Ler pedidos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler pedidos": {
+      "main": [
+        [
+          {
+            "node": "Ler entregas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler entregas": {
+      "main": [
+        [
+          {
+            "node": "Ler atendentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler atendentes": {
+      "main": [
+        [
+          {
+            "node": "Conferir entrega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conferir entrega": {
+      "main": [
+        [
+          {
+            "node": "Pode acionar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linha da entrega": {
+      "main": [
+        [
+          {
+            "node": "Gravar entrega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gravar entrega": {
+      "main": [
+        [
+          {
+            "node": "Status do pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status do pedido": {
+      "main": [
+        [
+          {
+            "node": "Atualizar pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar pedido": {
+      "main": [
+        [
+          {
+            "node": "Resposta final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pode acionar?": {
+      "main": [
+        [
+          {
+            "node": "Linha da entrega",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta recusa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
